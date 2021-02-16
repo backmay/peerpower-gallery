@@ -1,5 +1,22 @@
 <template>
     <div class="container">
+        <div class="modal fade" tabindex="-1" role="dialog" id=exampleModal>
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <img v-bind:src="'images/'+ modalImage " class="img-fluid" v-if="modalImage!=null">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
@@ -23,12 +40,14 @@
                         <div class="images-preview" v-show="images.length">
                             <div class="img-wrapper" v-for="(image, index) in images" :key="index"
                                  @mouseover="mouserOverIndex = index"
-                                 @mouseleave="OnMouseLeave">
+                                 @mouseleave="mouserOverIndex = null">
                                 <img :src="'images/' + image.name" :alt="`Image Uplaoder ${index}`">
                                 <div v-show="mouserOverIndex === index" class="details">
                                     <span>
-                                        <button class="btn btn-info" @click="showModal()"><i
-                                            class="fa fa-search"></i></button>
+                                        <button class="btn btn-info" @click="openModal(image.name)" data-toggle="modal"
+                                                data-target="#exampleModal">
+                                                <i class="fa fa-search"></i>
+                                        </button>
                                         <button class="btn btn-danger"><i class="fa fa-trash"></i></button>
                                     </span>
                                 </div>
@@ -48,27 +67,12 @@ export default {
         dragCount: 0,
         files: [],
         images: [],
-        isMouseOver: false,
         mouserOverIndex: null,
-        isModalVisible: false
+        modalImage: null,
     }),
     methods: {
-        showModal() {
-            this.isModalVisible = true;
-        },
-        closeModal() {
-            this.isModalVisible = false;
-        },
-        ShowImage(index) {
-            console.log(this.images[index]);
-        },
-        OnMouseOver(index) {
-            console.log(index);
-            this.isMouseOver = true;
-        },
-        OnMouseLeave(e) {
-            // this.mouserOverIndex = null
-            // this.isMouseOver = false;
+        openModal(imageName) {
+            this.modalImage = imageName;
         },
         OnClink(e) {
             $('#file').trigger('click');
@@ -168,36 +172,25 @@ export default {
         flex-direction: column;
         margin: 10px;
         height: 150px;
-        justify-content: space-between;
-        background: #fff;
+        justify-content: center;
+        background: #ffffff;
         box-shadow: 5px 5px 20px #3e3737;
 
         img {
-            max-height: 105px;
+            justify-content: center;
         }
 
         .fullimage {
             max-height: 100%;
         }
-
-        .button {
-            position: center;
-        }
     }
 
     .details {
-        font-size: 12px;
-        background: #fff;
-        color: #000;
         display: flex;
         flex-direction: column;
         align-items: self-start;
         margin: auto;
-
-        .name {
-            overflow: hidden;
-            height: 18px;
-        }
+        transform: translate(0%, -150%);
     }
 }
 
@@ -225,68 +218,6 @@ export default {
 
     i {
         font-size: 85px;
-    }
-
-    //.file-input {
-    //    width: 200px;
-    //    margin: auto;
-    //    height: 68px;
-    //    position: relative;
-    //
-    //    label,
-    //    input {
-    //        background: #fff;
-    //        color: #2196F3;
-    //        width: 100%;
-    //        position: absolute;
-    //        left: 0;
-    //        top: 0;
-    //        padding: 10px;
-    //        border-radius: 4px;
-    //        margin-top: 7px;
-    //        cursor: pointer;
-    //    }
-    //
-    //    input {
-    //        opacity: 0;
-    //        z-index: -2;
-    //    }
-    //}
-
-    .images-preview {
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 20px;
-
-        .img-wrapper {
-            width: 160px;
-            display: flex;
-            flex-direction: column;
-            margin: 10px;
-            height: 150px;
-            justify-content: space-between;
-            background: #fff;
-            box-shadow: 5px 5px 20px #3e3737;
-
-            img {
-                max-height: 105px;
-            }
-        }
-
-        .details {
-            font-size: 12px;
-            background: #fff;
-            color: #000;
-            display: flex;
-            flex-direction: column;
-            align-items: self-start;
-            padding: 3px 6px;
-
-            .name {
-                overflow: hidden;
-                height: 18px;
-            }
-        }
     }
 
     .upload-control {
