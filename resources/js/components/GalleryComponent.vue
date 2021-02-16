@@ -12,7 +12,6 @@
                              @dragover.prevent
                              @drop="onDrop"
                              :class="{ dragging: isDragging }">
-
                             <div>
                                 <i class="fa fa-cloud-upload" aria-hidden="true"></i>
                                 <p>Drop file here or click to upload...</p>
@@ -149,17 +148,21 @@ export default {
             const formData = new FormData();
 
             this.files.forEach(file => {
-                formData.append('images[]', file, file.name);
+                formData.append('files', file);
             });
 
-            axios.post('/images-upload', formData)
+            axios.post('/store', formData)
                 .then(response => {
-                    this.$toastr.s('All images uplaoded successfully');
-                    this.images = [];
+                    // this.$toastr.s('All images uplaoded successfully');
+                    // this.images = [];
                     this.files = [];
                 })
+            .catch(error => {
+                console.log(error)
+            })
         }
-    },
+    }
+    ,
     beforeMount() {
         this.getUserImages();
         // console.log(this.images)

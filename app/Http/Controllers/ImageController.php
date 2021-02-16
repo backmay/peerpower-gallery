@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreImageRequest;
-use Illuminate\Http\Request;
+use App\Models\Image;
+use Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
