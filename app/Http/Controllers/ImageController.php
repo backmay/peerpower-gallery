@@ -26,6 +26,7 @@ class ImageController extends Controller
 
     public function store(StoreImageRequest $request)
     {
+
         $file = $request->file('files');
         $file_type = $file->getMimeType();
         $file_size = $file->getSize();

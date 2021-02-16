@@ -119,15 +119,10 @@ export default {
             this.files.push(file);
         },
         getUserImages() {
-            axios.get('/list', {
-                headers: {
-                    // 'content-type': 'multipart/form-data',
-                    // 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    // 'Accept': 'application/json',
-                }
-            }).then(response => {
-                this.images = response.data;
-            })
+            axios.get('/list')
+                .then(response => {
+                    this.images = response.data;
+                })
         },
         getFileSize(size) {
             const fSExt = ['Bytes', 'KB', 'MB', 'GB'];
@@ -141,21 +136,18 @@ export default {
             return `${(Math.round(size * 100) / 100)} ${fSExt[i]}`;
         },
         upload() {
-            const formData = new FormData();
-
             this.files.forEach(file => {
-                formData.append('files', file);
+                const formData = new FormData();
+                formData.append('files', file, file.name);
+                axios.post('/store', formData)
+                    .then(response => {
+                        this.images.push(response.data.files);
+                        this.files = [];
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    })
             });
-
-            axios.post('/store', formData)
-                .then(response => {
-                    // this.$toastr.s('All images uplaoded successfully');
-                    this.images.push(response.data.files);
-                    this.files = [];
-                })
-                .catch(error => {
-                    console.log(error)
-                })
         },
         remove(index, id) {
             axios.delete(
