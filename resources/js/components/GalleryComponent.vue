@@ -48,7 +48,8 @@
                                                 data-target="#exampleModal">
                                                 <i class="fa fa-search"></i>
                                         </button>
-                                        <button class="btn btn-danger"><i class="fa fa-trash"></i></button>
+                                        <button class="btn btn-danger" @click="remove(index, image.id)"><i
+                                            class="fa fa-trash"></i></button>
                                     </span>
                                 </div>
                             </div>
@@ -115,11 +116,16 @@ export default {
                 this.$toastr.e(`${file.name} is not an image`);
                 return;
             }
-
             this.files.push(file);
         },
         getUserImages() {
-            axios.get('/list').then(response => {
+            axios.get('/list', {
+                headers: {
+                    // 'content-type': 'multipart/form-data',
+                    // 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    // 'Accept': 'application/json',
+                }
+            }).then(response => {
                 this.images = response.data;
             })
         },
@@ -150,11 +156,20 @@ export default {
                 .catch(error => {
                     console.log(error)
                 })
-        }
+        },
+        remove(index, id) {
+            axios.delete(
+                '/image/' + id)
+                .then(response => {
+                    this.images.splice(index, 1);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
     },
     mounted() {
         this.getUserImages();
-        // console.log(this.images)
     }
 }
 </script>
@@ -167,7 +182,7 @@ export default {
     margin-top: 20px;
 
     .img-wrapper {
-        width: 160px;
+        width: 150px;
         display: flex;
         flex-direction: column;
         margin: 10px;
@@ -178,10 +193,6 @@ export default {
 
         img {
             justify-content: center;
-        }
-
-        .fullimage {
-            max-height: 100%;
         }
     }
 
@@ -209,11 +220,6 @@ export default {
         background: #fff;
         color: #2196F3;
         border: 3px dashed #2196F3;
-
-        .file-input label {
-            background: #2196F3;
-            color: #fff;
-        }
     }
 
     i {
@@ -228,23 +234,8 @@ export default {
         left: 0;
         border-top-left-radius: 7px;
         border-top-right-radius: 7px;
-        padding: 10px;
-        padding-bottom: 4px;
+        padding: 10px 10px 4px;
         text-align: right;
-
-        button, label {
-            background: #2196F3;
-            border: 2px solid #03A9F4;
-            border-radius: 3px;
-            color: #fff;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        label {
-            padding: 2px 5px;
-            margin-right: 10px;
-        }
     }
 }
 </style>

@@ -48,4 +48,12 @@ class ImageController extends Controller
             'files' => $image
         ], 201);
     }
+
+    public function destroy($id)
+    {
+        $image = Image::findOrFail($id);
+        Storage::disk('images')->delete($image->name);
+        $image->delete();
+        return response()->noContent();
+    }
 }
