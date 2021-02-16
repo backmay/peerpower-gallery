@@ -24,7 +24,7 @@
                             <div class="img-wrapper" v-for="(image, index) in images" :key="index"
                                  @mouseover="mouserOverIndex = index"
                                  @mouseleave="OnMouseLeave">
-                                <img :src="image" :alt="`Image Uplaoder ${index}`">
+                                <img :src="'images/' + image.name" :alt="`Image Uplaoder ${index}`">
                                 <div v-show="mouserOverIndex === index" class="details">
                                     <span>
                                         <button class="btn btn-info" @click="showModal()"><i
@@ -113,24 +113,10 @@ export default {
             }
 
             this.files.push(file);
-            console.log(file)
-            const img = new Image(),
-                reader = new FileReader();
-
-            reader.onload = (e) => this.images.push(e.target.result);
-
-            reader.readAsDataURL(file);
         },
         getUserImages() {
             axios.get('/list').then(response => {
-                response.data.forEach(file_name => {
-                    console.log(file_name)
-                    axios.get(file_name.replace('public', 'storage'), {responseType: 'blob'}
-                    ).then(file => {
-                        // file.data.name = file_name.replace('public', 'storage'
-                        this.addImage(file.data);
-                    })
-                });
+                this.images = response.data;
             })
         },
         getFileSize(size) {
@@ -154,16 +140,15 @@ export default {
             axios.post('/store', formData)
                 .then(response => {
                     // this.$toastr.s('All images uplaoded successfully');
-                    // this.images = [];
+                    this.images.push(response.data.files);
                     this.files = [];
                 })
-            .catch(error => {
-                console.log(error)
-            })
+                .catch(error => {
+                    console.log(error)
+                })
         }
-    }
-    ,
-    beforeMount() {
+    },
+    mounted() {
         this.getUserImages();
         // console.log(this.images)
     }

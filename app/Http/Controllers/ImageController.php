@@ -19,6 +19,11 @@ class ImageController extends Controller
         return view('gallery.index');
     }
 
+    public function list()
+    {
+        return response()->json(Image::where('user_id',Auth::user()->id)->get());
+    }
+
     public function store(StoreImageRequest $request)
     {
         $file = $request->file('files');
