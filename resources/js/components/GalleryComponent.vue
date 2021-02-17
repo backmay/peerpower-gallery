@@ -41,7 +41,7 @@
                             <div class="img-wrapper" v-for="(image, index) in images" :key="index"
                                  @mouseover="mouserOverIndex = index"
                                  @mouseleave="mouserOverIndex = null">
-                                <img v-if="image.exception" :src="'storage/error.svg'" :alt="`Image Uplaoder ${index}`">
+                                <i v-if="image.exception" class="fa fa-times-circle" style="font-size: 50px; color: red"></i>
                                 <p v-if="image.exception">{{ image.text }}</p>
                                 <img v-else :src="'images/' + image.name" :alt="`Image Uplaoder ${index}`">
                                 <div v-show="mouserOverIndex === index" class="details">
@@ -116,13 +116,13 @@ export default {
         addImage(file) {
             if (!file.type.match('image.*')) {
                 this.images.push({
-                    text: 'File type not supported. - '+file.name,
+                    text: 'File type not supported - '+file.name,
                     exception: true,
                 })
             }
             else if(file.size>10485760){
                 this.images.push({
-                    text: 'File size exceeded. - '+file.name,
+                    text: 'File size exceeded - '+file.name,
                     exception: true,
                 })
                 console.log(`${file.name} !is not an image!!`)
@@ -195,6 +195,10 @@ export default {
         justify-content: center;
         box-shadow: 5px 5px 20px #3e3737;
         text-align: center;
+
+        i .exception {
+            font-size: 70px;
+        }
     }
 
     .details {
