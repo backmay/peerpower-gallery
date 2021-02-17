@@ -41,10 +41,12 @@
                             <div class="img-wrapper" v-for="(image, index) in images" :key="index"
                                  @mouseover="mouserOverIndex = index"
                                  @mouseleave="mouserOverIndex = null">
-                                <img :src="'images/' + image.name" :alt="`Image Uplaoder ${index}`">
+                                <img v-if="image.exception" :src="'storage/error.svg'" :alt="`Image Uplaoder ${index}`">
+                                <p v-if="image.exception">{{ image.text }}</p>
+                                <img v-else :src="'images/' + image.name" :alt="`Image Uplaoder ${index}`">
                                 <div v-show="mouserOverIndex === index" class="details">
                                     <span>
-                                        <button class="btn btn-info" @click="openModal(image.name)" data-toggle="modal"
+                                        <button v-if="!image.exception" class="btn btn-info" @click="openModal(image.name)" data-toggle="modal"
                                                 data-target="#exampleModal">
                                                 <i class="fa fa-search"></i>
                                         </button>
@@ -113,10 +115,21 @@ export default {
         },
         addImage(file) {
             if (!file.type.match('image.*')) {
-                this.$toastr.e(`${file.name} is not an image`);
-                return;
+                this.images.push({
+                    text: 'File type not supported. - '+file.name,
+                    exception: true,
+                })
             }
-            this.files.push(file);
+            else if(file.size>10485760){
+                this.images.push({
+                    text: 'File size exceeded. - '+file.name,
+                    exception: true,
+                })
+                console.log(`${file.name} !is not an image!!`)
+            }
+            else{
+                this.files.push(file);
+            }
         },
         getUserImages() {
             axios.get('/list')
@@ -124,22 +137,17 @@ export default {
                     this.images = response.data;
                 })
         },
-        getFileSize(size) {
-            const fSExt = ['Bytes', 'KB', 'MB', 'GB'];
-            let i = 0;
-
-            while (size > 900) {
-                size /= 1024;
-                i++;
-            }
-
-            return `${(Math.round(size * 100) / 100)} ${fSExt[i]}`;
-        },
         upload() {
             this.files.forEach(file => {
                 const formData = new FormData();
                 formData.append('files', file, file.name);
-                axios.post('/store', formData)
+                const config = {
+                    onUploadProgress: function(progressEvent) {
+                        let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                        console.log(percentCompleted)
+                    }
+                }
+                axios.post('/store', formData, config)
                     .then(response => {
                         this.images.push(response.data.files);
                         this.files = [];
@@ -150,14 +158,19 @@ export default {
             });
         },
         remove(index, id) {
-            axios.delete(
-                '/image/' + id)
-                .then(response => {
-                    this.images.splice(index, 1);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            if(id) {
+                axios.delete(
+                    '/image/' + id)
+                    .then(response => {
+                        this.images.splice(index, 1);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
+            else{
+                this.images.splice(index, 1);
+            }
         },
     },
     mounted() {
@@ -174,26 +187,20 @@ export default {
     margin-top: 20px;
 
     .img-wrapper {
-        width: 150px;
+        width: 209px;
         display: flex;
         flex-direction: column;
         margin: 10px;
-        height: 150px;
+        height: 209px;
         justify-content: center;
-        background: #ffffff;
         box-shadow: 5px 5px 20px #3e3737;
-
-        img {
-            justify-content: center;
-        }
+        text-align: center;
     }
 
     .details {
-        display: flex;
-        flex-direction: column;
-        align-items: self-start;
-        margin: auto;
-        transform: translate(0%, -150%);
+        position: absolute;
+        justify-content: center;
+        align-self: center;
     }
 }
 
@@ -206,7 +213,6 @@ export default {
     border-radius: 0px;
     border: 3px dashed #b8b8b8;
     font-size: 20px;
-    position: relative;
 
     &.dragging {
         background: #fff;
@@ -216,18 +222,6 @@ export default {
 
     i {
         font-size: 85px;
-    }
-
-    .upload-control {
-        position: absolute;
-        width: 100%;
-        background: #fff;
-        top: 0;
-        left: 0;
-        border-top-left-radius: 7px;
-        border-top-right-radius: 7px;
-        padding: 10px 10px 4px;
-        text-align: right;
     }
 }
 </style>
